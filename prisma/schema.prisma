@@ -29,11 +29,10 @@ model Game {
   id          Int        @id @default(autoincrement())
   userId      Int
   user        User       @relation(fields: [userId], references: [id]) // relation
-  numbers     String
-  // mySQL is not able to store  Int[] data
+  numbers     String // mySQL is not able to store  Int[] data
   createdAt   DateTime   @default(now()) @db.Timestamp(0)
   isCompleted Boolean    @default(false)
-  completedAt DateTime   @default(now()) @db.Timestamp(0)
+  completedAt DateTime?
   Solution    Solution[]
 }
 
@@ -46,10 +45,10 @@ model Solution {
 }
 
 model History {
-  id           Int      @id @default(autoincrement())
-  userId       Int
-  user         User     @relation(fields: [userId], references: [id]) // relation
-  numbers      String
-  explaination String
-  createdAt    DateTime @default(now()) @db.Timestamp(0)
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id]) // relation
+  numbers     String
+  explanation String
+  createdAt   DateTime @default(now()) @db.Timestamp(0)
 }
