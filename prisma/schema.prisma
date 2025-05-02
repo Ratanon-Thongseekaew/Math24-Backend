@@ -12,3 +12,44 @@ datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id        Int       @id @default(autoincrement())
+  firstname String
+  lastname  String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now()) @db.Timestamp(0)
+  updatedAt DateTime  @updatedAt
+  Game      Game[]
+  History   History[]
+}
+
+model Game {
+  id          Int        @id @default(autoincrement())
+  userId      Int
+  user        User       @relation(fields: [userId], references: [id]) // relation
+  numbers     String
+  // mySQL is not able to store  Int[] data
+  createdAt   DateTime   @default(now()) @db.Timestamp(0)
+  isCompleted Boolean    @default(false)
+  completedAt DateTime   @default(now()) @db.Timestamp(0)
+  Solution    Solution[]
+}
+
+model Solution {
+  id         Int     @id @default(autoincrement())
+  gameId     Int
+  game       Game    @relation(fields: [gameId], references: [id]) // relation 
+  expression String
+  isCorrect  Boolean @default(false)
+}
+
+model History {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  user         User     @relation(fields: [userId], references: [id]) // relation
+  numbers      String
+  explaination String
+  createdAt    DateTime @default(now()) @db.Timestamp(0)
+}
