@@ -4,16 +4,8 @@ import createError from "../utils/createError";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import dotenv from 'dotenv';
-
 dotenv.config();
 
-export const test = async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    res.send(["Hello, Typescript"]);
-  } catch (error) {
-    next(error);
-  }
-};
 
 export const register = async (
   req: Request,
@@ -101,8 +93,6 @@ export const login = async (
     next(error);
   }
 };
-
-
 
 export const getCurrentUser = async (
     req: Request,  // ใช้ Request มาตรฐาน

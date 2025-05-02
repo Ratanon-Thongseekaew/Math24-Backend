@@ -6,6 +6,8 @@ export interface UserPayload {
   firstname: string;
   lastname: string;
 }
+
+// ขยาย Express Request interface ด้วย declare global
 declare global {
     namespace Express {
       // ขยาย Express Request interface
