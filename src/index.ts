@@ -1,11 +1,11 @@
-import express from "express"
 import dotenv from "dotenv"
+dotenv.config();
+import express from "express"
 import cors from "cors"
 import morgan from "morgan"
 import notFound from "./middlewares/notFound"
 import authRouter from "./routes/auth-routes"
 import errorHandler from "./middlewares/errorHandler"
-dotenv.config();
 const app = express();
 
 //middleware

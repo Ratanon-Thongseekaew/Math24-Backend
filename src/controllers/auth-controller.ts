@@ -2,6 +2,10 @@ import { Request, Response, NextFunction } from "express";
 import prisma from "../configs/prisma";
 import createError from "../utils/createError";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 export const test = async (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -22,7 +26,7 @@ export const register = async (
     //validation
     //check if user exists
     const checkEmail = await prisma.user.findFirst({
-      where: { email },
+      where: { email:email },
     });
     console.log(checkEmail);
     if (checkEmail) {
@@ -50,3 +54,88 @@ export const register = async (
     next(error);
   }
 };
+
+export const login = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {email, password} = req.body;
+    //check if user exists
+    const user = await prisma.user.findFirst({
+      where: { email:email },
+    });
+    if (!user) {
+      return createError(400, "Invalid email or password");
+    }
+    const isMatch = bcrypt.compareSync(password, user.password);
+    console.log("isMatch Check:",isMatch)
+    if (!isMatch) {
+      return createError(400, "Email or password is invalid");
+    }
+    //create token
+    const payload = {
+      id: user.id,
+      email: user.email,
+      firstname: user.firstname,
+      lastname: user.lastname,
+    };
+    console.log("payload check:",payload);
+    //have to use type assertion for jwt to prevent error
+    const secret = process.env.SECRET_KEY as string;
+    if (!secret) {
+      return next(createError(500, "SECRET_KEY is not defined in environment variables"));
+    }
+
+    const token = jwt.sign(payload, secret, {
+      expiresIn: "1d",
+    });
+    console.log("token check:",token);
+    res.status(201).json({
+        message: "Login successful",
+        token:token,
+      });
+  } catch (error) {
+    console.log("Login error log:",error);
+    next(error);
+  }
+};
+
+
+
+export const getCurrentUser = async (
+    req: Request,  // ใช้ Request มาตรฐาน
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      // ตรวจสอบว่ามี user หรือไม่
+      if (!req.user) {
+        return next(createError(401, "User not authenticated"));
+      }
+      
+      const { email } = req.user;
+      console.log("email Check", email);
+      
+      const user = await prisma.user.findFirst({
+        where: { email: email },
+        select: {
+          id: true,
+          email: true,
+          firstname: true,
+          lastname: true,
+        }
+      });
+      
+      console.log("user Check", user);
+      
+      res.status(201).json({
+        message: "Get Me Success",
+        user: user,
+      });
+    } catch (error) {
+      console.log("currentUser error log:", error);
+      next(error);
+    }
+  };
