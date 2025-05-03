@@ -13,4 +13,5 @@ USER-Auth
 |/api/login|post|-|-|-| {email,password}
 |/api/me|get|y|-|-|-|
 USER-Game
-|/api/game/generate-numbers|post|y|-|-|{game_name,game_type,game_status}|
+|/api/game/generate-numbers|get|y|-|-|-|
+|/api/game/submit-solution|post|y|-|-|{gameId,expression}|
