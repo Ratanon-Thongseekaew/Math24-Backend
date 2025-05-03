@@ -77,7 +77,7 @@ export const login = async (
     //have to use type assertion for jwt to prevent error
     const secret = process.env.SECRET_KEY as string;
     if (!secret) {
-      return next(createError(500, "SECRET_KEY is not defined in environment variables"));
+      return createError(500, "SECRET_KEY is not defined in environment variables");
     }
 
     const token = jwt.sign(payload, secret, {
@@ -102,7 +102,7 @@ export const getCurrentUser = async (
     try {
       // ตรวจสอบว่ามี user หรือไม่
       if (!req.user) {
-        return next(createError(401, "User not authenticated"));
+        return createError(401, "User not authenticated") ;
       }
       
       const { email } = req.user;

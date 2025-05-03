@@ -14,7 +14,7 @@ export const authenticate = async (
     const authorization = req.headers.authorization;
     console.log("authorization check:", authorization);
     if (!authorization) {
-      return next(createError(400, "Bad Request"));
+      return next(createError(400, "Bad Request, Please Login"));
     }
     const token = authorization.split(" ")[1];
     //verify token
