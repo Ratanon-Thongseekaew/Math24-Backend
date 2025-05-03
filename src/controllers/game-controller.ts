@@ -2,8 +2,9 @@ import pirsma from "../configs/prisma";
 import { Request, Response, NextFunction } from "express";
 import createError from "../utils/createError";
 import prisma from "../configs/prisma";
+import { ValidationResult } from "../types/game";
 
-// Generate number parts
+// Generate number logic
 const generateRandomNumber = (): number => {
   return Math.floor(Math.random() * 9) + 1; // *9 to limit to 0-8 and +1 to get 1-9 with mathh.floor
 };
@@ -100,3 +101,134 @@ export const generateNumbers = async (
     next(error);
   }
 };
+
+//submit answer logic
+export const submitSolution = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = req.user?.id;
+    const { gameId, expression } = req.body;
+    if (!userId) {
+      return createError(401, "Unauthorized");
+    }
+    if (!gameId || !expression) {
+      return createError(400, "Game ID and expression are required");
+    }
+    //get Game data
+    const game = await prisma.game.findUnique({
+      where: {
+        id: gameId,
+      },
+    });
+    if (!game) {
+      return createError(404, "Game not found");
+    }
+    if (game.userId !== userId) {
+      return createError(
+        403,
+        "You are not authorized to submit solution for this game"
+      );
+    }
+    // string -> array
+    const numbers = JSON.parse(game.numbers) as number[];
+
+    // check answer
+    const { isValid, result } = validateExpression(expression, numbers);
+
+    const solution = await prisma.solution.create({
+      data: {
+        gameId: gameId,
+        expression: expression,
+        isCorrect: isValid && Math.abs(result - 24) < 0.0001,
+      },
+    });
+    if (solution.isCorrect) {
+      await prisma.game.update({
+        where: { id: gameId },
+        data: {
+          isCompleted: true,
+          completedAt: new Date(),
+        },
+      });
+      await prisma.history.create({
+        data: {
+          userId: userId,
+          numbers: game.numbers,
+          expression: expression,
+          createdAt: new Date(),
+        },
+      });
+      res.status(200).json({
+        success: true,
+        isCorrect: true,
+        message: "Correct!",
+      });
+    } else {
+      res.status(200).json({
+        success: true,
+        isCorrect: false,
+        message: "Incorrect!",
+      });
+    }
+  } catch (error) {
+    next(error);
+  }
+};
+function validateExpression(
+  expression: string,
+  numbers: number[]
+): ValidationResult {
+  try {
+    // validate expression
+    const usedNumbers = extractNumbersFromExpression(expression);
+    // ตรวจสอบว่าใช้ตัวเลขครบทุกตัวและแต่ละตัวใช้แค่ครั้งเดียว
+    if (!areArraysEqual(numbers.sort(), usedNumbers.sort())) {
+      return { isValid: false, result: 0 };
+    }
+    const sanitizedExpression = sanitizeExpression(expression);
+    const result = evaluateExpression(sanitizedExpression);
+
+    return {
+      isValid: true,
+      result,
+      usedNumbers,
+    };
+  } catch (error) {
+    return { isValid: false, result: 0 };
+  }
+}
+// seperate numbers from expression
+function extractNumbersFromExpression(expression: string): number[] {
+  const numMatches = expression.match(/\d+/g);
+  return numMatches ? numMatches.map(Number) : [];
+}
+//compare array
+function areArraysEqual(arr1: number[], arr2: number[]): boolean {
+  if (arr1.length !== arr2.length){
+    return false;
+  }
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+//clear Expression
+function sanitizeExpression(expression: string): string {
+  // อนุญาตเฉพาะตัวเลข และเครื่องหมาย +, -, *, /, (, ) เท่านั้น
+  return expression.replace(/[^0-9+\-*/().]/g, '');
+}
+
+// ฟังก์ชันคำนวณนิพจน์
+function evaluateExpression(expression: string): number {
+  // ในโค้ดจริง ควรใช้ไลบรารีอื่นแทน eval เช่น mathjs
+  // เพื่อความปลอดภัย
+  try {
+    // แนะนำให้ใช้ mathjs แทน
+    return eval(expression);
+  } catch (error) {
+    throw new Error('Invalid expression');
+  }
+}
