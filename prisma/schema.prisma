@@ -49,6 +49,6 @@ model History {
   userId      Int
   user        User     @relation(fields: [userId], references: [id]) // relation
   numbers     String
-  explanation String
+  expression String
   createdAt   DateTime @default(now()) @db.Timestamp(0)
 }
