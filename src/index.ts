@@ -6,6 +6,7 @@ import morgan from "morgan"
 import notFound from "./middlewares/notFound"
 import authRouter from "./routes/auth-routes"
 import gameRouter from "./routes/game-routes"
+import historyRouter from "./routes/history-routes"
 import errorHandler from "./middlewares/errorHandler"
 const app = express();
 
@@ -16,7 +17,7 @@ app.use(morgan("dev"))
 //routing
 app.use("/api",authRouter)
 app.use("/api/games",gameRouter)
-
+app.use("/api/history",historyRouter)
 
 
 //import error
