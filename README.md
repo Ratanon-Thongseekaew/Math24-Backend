@@ -16,6 +16,6 @@ USER-Game
 |/api/game/generate-numbers|get|y|-|-|-|
 |/api/game/submit-solution|post|y|-|-|{gameId,expression}|
 USER-History
-|/api/history|get|y|-|-|-|
+|/api/history/all|get|y|-|-|-|
 |/api/history/:id|get|y|id|-|-|
 USER-CHEAT

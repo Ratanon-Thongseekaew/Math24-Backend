@@ -86,6 +86,7 @@ export const login = async (
     console.log("token check:",token);
     res.status(201).json({
         message: "Login successful",
+        payload:payload,
         token:token,
       });
   } catch (error) {
