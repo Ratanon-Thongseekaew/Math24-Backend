@@ -34,12 +34,21 @@ export const getAllHistory = async (
         expression: true,
         createdAt: true,
       },
+      orderBy: {
+        createdAt: "desc",
+      },
       skip: skip,
       take: Number(limit),
+    });
+    const totalCount = await prisma.history.count({
+      where: {
+        userId: userId,
+      },
     });
     res.status(201).json({
       message: "Get Histories Success",
       history: history,
+      totalCount:totalCount
     });
   } catch (error) {
     console.log("history error check:", error);
@@ -64,27 +73,27 @@ export const getHistoryById = async (
       return createError(400, "Invalid order ID");
     }
     const history = await prisma.history.findFirst({
-        where:{
-            id:Number(id),
-            userId:userId
-        },
-        select: {
-            user: {
-              select: {
-                firstname: true,
-                lastname: true,
-              },
-            },
-            id: true,
-            numbers: true,
-            expression: true,
-            createdAt: true,
+      where: {
+        id: Number(id),
+        userId: userId,
+      },
+      select: {
+        user: {
+          select: {
+            firstname: true,
+            lastname: true,
           },
-    })
+        },
+        id: true,
+        numbers: true,
+        expression: true,
+        createdAt: true,
+      },
+    });
     res.status(201).json({
-        message: "Get History by ID Success",
-        history: history,
-      });
+      message: "Get History by ID Success",
+      history: history,
+    });
   } catch (error) {
     console.log("history by ID error check:", error);
     next(error);
