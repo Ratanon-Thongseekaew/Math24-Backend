@@ -20,7 +20,6 @@ const canMake24 = (numbers: number[]): boolean => {
         const remainingNums = nums.filter(
           (_, index) => index !== i && index !== j
         ); //_, เป็นการละ parameter แรก
-
         // Try all operations
         if (checkExpression([...remainingNums, a + b], target)) return true;
         if (checkExpression([...remainingNums, a - b], target)) return true;
@@ -55,16 +54,16 @@ const findValidNumbers = (): number[] => {
   if (attempts >= maxAttempts) {
     // alternative set of data if attempt is over 100 and no number found
     const knownSets = [
-      [1, 3, 4, 6],
-      [1, 3, 8, 8],
-      [1, 4, 6, 8],
-      [2, 5, 8, 9],
-      [3, 3, 8, 8],
-      [3, 5, 7, 9],
-      [2, 3, 3, 4],
-      [4, 6, 7, 9],
-      [1, 4, 7, 8],
-      [1, 5, 8, 8],
+      [1, 3, 4, 6],  // (6 / (1 - (3/4))) = 24
+      [1, 3, 8, 8],  // (8 / 1) * (8 - 3) = 24
+      [1, 4, 6, 8],  // 8 * (4 - 1) - 6 = 24
+      [2, 5, 8, 9],  // (9 - 5) * 8 / 2 = 24
+      [3, 3, 8, 8],  // 8 * 3 - 8 / 3 = 24
+      [3, 5, 7, 9],  // (9 - 5) * 7 - 3 = 24
+      [2, 3, 3, 4],  // 3 * 4 * 2 / 3 = 24
+      [4, 6, 7, 9],  // (9 - 7) * 6 * 4 = 24
+      [1, 4, 7, 8],  // (8 - 4) * 7 - 1 = 24
+      [1, 5, 8, 8]   // (8 / 1) * (8 - 5) = 24
     ];
     return knownSets[Math.floor(Math.random() * knownSets.length)];
   }
@@ -220,14 +219,14 @@ function sanitizeExpression(expression: string): string {
   return expression.replace(/[^0-9+\-*/().]/g, '');
 }
 
-// ฟังก์ชันคำนวณนิพจน์
 function evaluateExpression(expression: string): number {
   // ในโค้ดจริง ควรใช้ไลบรารีอื่นแทน eval เช่น mathjs
   // เพื่อความปลอดภัย
   try {
-    // แนะนำให้ใช้ mathjs แทน
     return eval(expression);
   } catch (error) {
     throw new Error('Invalid expression');
   }
 }
+
+//next time  learn "MathJs"
